@@ -1,0 +1,24 @@
+{
+  "common": {
+    "appName": "SchoolOS"
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "subtitle": "مرحباً بعودتك إلى SchoolOS",
+    "emailOrUserName": "البريد الإلكتروني أو اسم المستخدم",
+    "password": "كلمة المرور",
+    "required": "هذا الحقل مطلوب.",
+    "submit": "تسجيل الدخول",
+    "submitting": "جارٍ تسجيل الدخول…",
+    "invalidCredentials": "بيانات الدخول غير صحيحة.",
+    "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً",
+    "roles": "الأدوار",
+    "permissions": "الصلاحيات",
+    "logout": "تسجيل الخروج",
+    "loading": "جارٍ التحميل…"
+  }
+}

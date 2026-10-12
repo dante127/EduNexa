@@ -1,0 +1,24 @@
+{
+  "common": {
+    "appName": "SchoolOS"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Welcome back to SchoolOS",
+    "emailOrUserName": "Email or username",
+    "password": "Password",
+    "required": "This field is required.",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "invalidCredentials": "Invalid credentials.",
+    "genericError": "Something went wrong. Please try again."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "logout": "Sign out",
+    "loading": "Loading…"
+  }
+}

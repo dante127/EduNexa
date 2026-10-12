@@ -163,6 +163,31 @@ public sealed class AuthFlowTests(SchoolOsAppFactory factory) : IClassFixture<Sc
         Assert.Equal(HttpStatusCode.OK, newPasswordLogin.StatusCode);
     }
 
+    [Fact]
+    public async Task Me_RequiresAuth_AndReturnsCurrentUser()
+    {
+        var email = await CreateUserAsync(SchoolOsRoles.Teacher);
+        using var client = CreateClient();
+
+        var unauthenticated = await client.GetAsync("/api/auth/me");
+        Assert.Equal(HttpStatusCode.Unauthorized, unauthenticated.StatusCode);
+
+        var login = await LoginAsync(client, email, DefaultPassword);
+        var payload = await login.Content.ReadFromJsonAsync<LoginResponsePayload>();
+        Assert.NotNull(payload);
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/auth/me");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", payload!.AccessToken);
+        var me = await client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, me.StatusCode);
+        var meBody = await me.Content.ReadFromJsonAsync<MePayload>();
+        Assert.NotNull(meBody);
+        Assert.Equal(email, meBody!.Email);
+        Assert.Contains(SchoolOsRoles.Teacher, meBody.Roles);
+        Assert.Contains("attendance.take", meBody.Permissions);
+    }
+
     private async Task<string> CreateUserAsync(string? role = null)
     {
         using var scope = factory.Services.CreateScope();
@@ -242,6 +267,8 @@ public sealed class AuthFlowTests(SchoolOsAppFactory factory) : IClassFixture<Sc
         var body = await response.Content.ReadAsStringAsync();
         Assert.Fail($"Expected {(int)expected} but got {(int)response.StatusCode}. WWW-Authenticate: '{challenge}'. Body: {body}");
     }
+
+    private sealed record MePayload(string Id, string Email, string Name, string[] Roles, string[] Permissions);
 
     private sealed record LoginResponsePayload(string AccessToken, int ExpiresInSeconds);
 }

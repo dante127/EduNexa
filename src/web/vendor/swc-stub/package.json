@@ -1,0 +1,7 @@
+{
+  "name": "@swc/core",
+  "version": "1.16.18",
+  "description": "Local stub for @swc/core. The native binding's secure-cache materialization fails on this machine (ERR_SWC_NATIVE_CACHE, DACL validation of drive roots); next-intl only needs @swc/core for optional message extraction (useExtracted/getExtracted), which this project does not use.",
+  "main": "index.js",
+  "license": "MIT"
+}

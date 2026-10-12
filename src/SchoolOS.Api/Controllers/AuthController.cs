@@ -158,6 +158,22 @@ public sealed class AuthController(
         return NoContent();
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult Me()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? string.Empty;
+        var email = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue("email") ?? string.Empty;
+        var name = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty;
+        var roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value)
+            .Concat(User.FindAll("role").Select(claim => claim.Value))
+            .Distinct()
+            .ToArray();
+        var permissions = User.FindAll("permission").Select(claim => claim.Value).Distinct().ToArray();
+
+        return Ok(new MeResponse(id, email, name, roles, permissions));
+    }
+
     private async Task<IActionResult> CreateSessionAsync(AppUser user, CancellationToken cancellationToken)
     {
         var accessToken = await jwtTokenService.CreateAccessTokenAsync(user, cancellationToken);

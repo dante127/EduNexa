@@ -8,6 +8,8 @@ public sealed record LoginRequest(
 
 public sealed record LoginResponse(string AccessToken, int ExpiresInSeconds);
 
+public sealed record MeResponse(string Id, string Email, string Name, string[] Roles, string[] Permissions);
+
 public sealed record PasswordResetRequest([Required, EmailAddress] string Email);
 
 public sealed record PasswordResetConfirm(
