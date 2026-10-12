@@ -36,7 +36,9 @@ jobs:
           cache: npm
           cache-dependency-path: src/web/package-lock.json
       - name: Install
-        run: npm install --no-audit --no-fund
+        run: |
+          npm install --no-audit --no-fund
+          node scripts/ci-install-platform-deps.mjs
         working-directory: src/web
       - name: Build
         run: npm run build
