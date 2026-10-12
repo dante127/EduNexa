@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-schoolos_dev_password}
       POSTGRES_DB: ${POSTGRES_DB:-schoolos}
     ports:
-      - "5432:5432"
+      # Host port 15432 avoids collisions with locally installed PostgreSQL instances.
+      - "15432:5432"
     volumes:
       - schoolos-pgdata:/var/lib/postgresql/data
     healthcheck:

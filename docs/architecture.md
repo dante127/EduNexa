@@ -166,7 +166,7 @@ app/(portal)/student/me/...
 | .NET SDK | **10.0.101** at `C:\Program Files\dotnet` | PATH resolves a bundled dotnet host **without SDKs** — scripts must call `C:\Program Files\dotnet\dotnet.exe` (or fix PATH). |
 | Node / npm | v22.22.0 / 10.9.4 | Next.js dev/build. |
 | Docker | Docker 28.1.1 + Compose v2.35.1 | Start Docker Desktop before dev; PostgreSQL runs as a container. |
-| PostgreSQL | none natively installed | Containerized via `docker-compose` service `db`. |
+| PostgreSQL | native install occupies host port 5432 (this machine) | Containerized via `docker-compose` service `db`, mapped to host port **15432**. |
 | Git / GitHub | git 2.44.0; credential manager configured | Repo: `D:\ForGitUploads\SchoolManagement` → `github.com/dante127/EduNexa` (public, `main`). CI (GitHub Actions) planned in Phase 2. |
 
 Command conventions (also in `implementation-plan.md`):
