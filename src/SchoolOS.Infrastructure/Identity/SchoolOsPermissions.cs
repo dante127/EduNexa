@@ -14,6 +14,8 @@ public static class SchoolOsPermissions
     [
         new("students.view", "Students"),
         new("students.manage", "Students"),
+        new("structure.view", "Structure"),
+        new("structure.manage", "Structure"),
         new("attendance.take", "Attendance"),
         new("attendance.correct", "Attendance"),
         new("grades.enter", "Academics"),
@@ -40,6 +42,7 @@ public static class SchoolOsPermissions
             [SchoolOsRoles.Principal] =
             [
                 "students.view",
+                "structure.view",
                 "grades.approve",
                 "grades.publish",
                 "reports.view"
@@ -47,6 +50,7 @@ public static class SchoolOsPermissions
             [SchoolOsRoles.Teacher] =
             [
                 "students.view",
+                "structure.view",
                 "attendance.take",
                 "attendance.correct",
                 "grades.enter",
@@ -54,6 +58,7 @@ public static class SchoolOsPermissions
             ],
             [SchoolOsRoles.Accountant] =
             [
+                "structure.view",
                 "finance.invoices.manage",
                 "finance.payments.post",
                 "reports.view"
@@ -61,7 +66,8 @@ public static class SchoolOsPermissions
             [SchoolOsRoles.Receptionist] =
             [
                 "students.view",
-                "students.manage"
+                "students.manage",
+                "structure.view"
             ],
             [SchoolOsRoles.Parent] = [],
             [SchoolOsRoles.Student] = []

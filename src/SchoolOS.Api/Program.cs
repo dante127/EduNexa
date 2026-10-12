@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SchoolOS.Api.ErrorHandling;
+using SchoolOS.Application;
 using SchoolOS.Infrastructure;
 using SchoolOS.Infrastructure.Identity;
 using Serilog;
@@ -61,9 +62,19 @@ builder.Services
             ClockSkew = TimeSpan.FromSeconds(30)
         };
     });
-builder.Services.AddAuthorization();
+
+// One policy per permission code ("perm:<code>"); endpoints require the matching policy.
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permission in SchoolOsPermissions.All)
+    {
+        options.AddPolicy($"perm:{permission.Code}", policy =>
+            policy.RequireAuthenticatedUser().RequireClaim("permission", permission.Code));
+    }
+});
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SchoolOS.Application.Common;
+using SchoolOS.Domain.Structure;
 using SchoolOS.Infrastructure.Identity;
 
 namespace SchoolOS.Infrastructure.Persistence;
@@ -12,13 +14,27 @@ namespace SchoolOS.Infrastructure.Persistence;
 /// with snake_case names (custom-mapped; no AspNet* names).
 /// </summary>
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<AppUser, AppRole, Guid>(options)
+    : IdentityDbContext<AppUser, AppRole, Guid>(options), IAppDbContext
 {
     public DbSet<Permission> Permissions => Set<Permission>();
 
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<School> Schools => Set<School>();
+
+    public DbSet<AcademicYear> AcademicYears => Set<AcademicYear>();
+
+    public DbSet<AcademicTerm> AcademicTerms => Set<AcademicTerm>();
+
+    public DbSet<GradeLevel> GradeLevels => Set<GradeLevel>();
+
+    public DbSet<ClassSection> ClassSections => Set<ClassSection>();
+
+    public DbSet<Subject> Subjects => Set<Subject>();
+
+    public DbSet<Classroom> Classrooms => Set<Classroom>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,6 +43,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         ConfigureIdentityTables(builder);
         ConfigureAccessControl(builder);
         ConfigureRefreshTokens(builder);
+
+        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 
     private static void ConfigureIdentityTables(ModelBuilder builder)

@@ -153,6 +153,334 @@ namespace SchoolOS.Infrastructure.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
+            modelBuilder.Entity("SchoolOS.Domain.Structure.AcademicTerm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_academic_terms");
+
+                    b.HasIndex("AcademicYearId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_academic_terms_one_active")
+                        .HasFilter("status = 'Active'");
+
+                    b.HasIndex("AcademicYearId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("ix_academic_terms_academic_year_id_sequence");
+
+                    b.ToTable("academic_terms", "structure", t =>
+                        {
+                            t.HasCheckConstraint("ck_academic_terms_dates", "end_date > start_date");
+
+                            t.HasCheckConstraint("ck_academic_terms_sequence", "sequence > 0");
+
+                            t.HasCheckConstraint("ck_academic_terms_status", "status IN ('Planned', 'Active', 'Closed')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.AcademicYear", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("name");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_academic_years");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_academic_years_name");
+
+                    b.HasIndex("Status")
+                        .IsUnique()
+                        .HasDatabaseName("ux_academic_years_single_active")
+                        .HasFilter("status = 'Active'");
+
+                    b.ToTable("academic_years", "structure", t =>
+                        {
+                            t.HasCheckConstraint("ck_academic_years_dates", "end_date > start_date");
+
+                            t.HasCheckConstraint("ck_academic_years_status", "status IN ('Planned', 'Active', 'Closed')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.ClassSection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<Guid>("GradeLevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grade_level_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_class_sections");
+
+                    b.HasIndex("GradeLevelId")
+                        .HasDatabaseName("ix_class_sections_grade_level_id");
+
+                    b.HasIndex("AcademicYearId", "GradeLevelId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_class_sections_academic_year_id_grade_level_id_name");
+
+                    b.ToTable("class_sections", "structure", t =>
+                        {
+                            t.HasCheckConstraint("ck_class_sections_capacity", "capacity > 0");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.Classroom", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_classrooms");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_classrooms_name");
+
+                    b.ToTable("classrooms", "structure", t =>
+                        {
+                            t.HasCheckConstraint("ck_classrooms_capacity", "capacity >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.GradeLevel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name_ar");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name_en");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence");
+
+                    b.HasKey("Id")
+                        .HasName("pk_grade_levels");
+
+                    b.HasIndex("Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("ix_grade_levels_sequence");
+
+                    b.ToTable("grade_levels", "structure", t =>
+                        {
+                            t.HasCheckConstraint("ck_grade_levels_sequence", "sequence > 0");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.School", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency_code");
+
+                    b.Property<string>("DefaultLocale")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("default_locale");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("LogoPath")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("logo_path");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name_ar");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name_en");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Timezone")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("timezone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_schools");
+
+                    b.ToTable("schools", "structure");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CurrencyCode = "USD",
+                            DefaultLocale = "en",
+                            NameAr = "SchoolOS",
+                            NameEn = "SchoolOS",
+                            Timezone = "Asia/Damascus"
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.Subject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("code");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name_ar");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name_en");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subjects");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_subjects_code");
+
+                    b.ToTable("subjects", "structure");
+                });
+
             modelBuilder.Entity("SchoolOS.Infrastructure.Identity.AppRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -397,6 +725,18 @@ namespace SchoolOS.Infrastructure.Migrations
                         },
                         new
                         {
+                            Id = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177"),
+                            Code = "structure.view",
+                            Module = "Structure"
+                        },
+                        new
+                        {
+                            Id = new Guid("fd9f9db2-e0c7-c5e7-d196-539e1d697803"),
+                            Code = "structure.manage",
+                            Module = "Structure"
+                        },
+                        new
+                        {
                             Id = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2"),
                             Code = "attendance.take",
                             Module = "Attendance"
@@ -560,6 +900,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
+                            PermissionId = new Guid("fd9f9db2-e0c7-c5e7-d196-539e1d697803")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
                             PermissionId = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2")
                         },
                         new
@@ -630,6 +980,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
+                            PermissionId = new Guid("fd9f9db2-e0c7-c5e7-d196-539e1d697803")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
                             PermissionId = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2")
                         },
                         new
@@ -695,6 +1055,11 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("849289eb-e846-1afd-e808-6d17a8249154"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("849289eb-e846-1afd-e808-6d17a8249154"),
                             PermissionId = new Guid("016c13cf-0261-f7db-fc71-b6fd9b6ff587")
                         },
                         new
@@ -715,6 +1080,11 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("66bcb3ad-a449-ded8-d542-3596fc6264b5"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("66bcb3ad-a449-ded8-d542-3596fc6264b5"),
                             PermissionId = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2")
                         },
                         new
@@ -731,6 +1101,11 @@ namespace SchoolOS.Infrastructure.Migrations
                         {
                             RoleId = new Guid("66bcb3ad-a449-ded8-d542-3596fc6264b5"),
                             PermissionId = new Guid("ec69b5d1-26f5-fb11-cce0-423e74d34ed0")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("1fcf2ced-6140-3380-daa8-c598938f90db"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
                         },
                         new
                         {
@@ -756,6 +1131,11 @@ namespace SchoolOS.Infrastructure.Migrations
                         {
                             RoleId = new Guid("8523b3d2-c6a8-b89a-40fb-fa31b58f3989"),
                             PermissionId = new Guid("6a2cd00a-719e-78f8-7c47-7a4bd362baf8")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("8523b3d2-c6a8-b89a-40fb-fa31b58f3989"),
+                            PermissionId = new Guid("2bc07016-bbcf-8a39-1af1-f11226a68177")
                         });
                 });
 
@@ -814,6 +1194,33 @@ namespace SchoolOS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.AcademicTerm", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Structure.AcademicYear", null)
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_academic_terms_academic_years_academic_year_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Structure.ClassSection", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Structure.AcademicYear", null)
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_class_sections_academic_years_academic_year_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.GradeLevel", null)
+                        .WithMany()
+                        .HasForeignKey("GradeLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_class_sections_grade_levels_grade_level_id");
                 });
 
             modelBuilder.Entity("SchoolOS.Infrastructure.Identity.RefreshToken", b =>
