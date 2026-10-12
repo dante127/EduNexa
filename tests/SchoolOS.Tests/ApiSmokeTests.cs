@@ -1,19 +1,29 @@
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace SchoolOS.Tests;
 
 /// <summary>
 /// Smoke tests: the API host starts in-memory and its operational endpoints respond.
-/// These tests must pass without a database (no DB access on these paths).
+/// These tests must pass without a database (no DB access on these paths; dev seeding disabled).
 /// </summary>
 public sealed class ApiSmokeTests
 {
     private static readonly WebApplicationFactory<Program> Factory =
         new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseEnvironment("Development");
+                builder.ConfigureAppConfiguration((_, configuration) =>
+                    configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        ["Seed:DevAdmin:Enabled"] = "false",
+                        ["Jwt:SigningKey"] = "smoke-test-signing-key-0123456789abcdefgh"
+                    }));
+            });
 
     [Fact]
     public async Task HealthLive_ReturnsOk()

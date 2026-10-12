@@ -1,6 +1,11 @@
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
 using SchoolOS.Api.ErrorHandling;
 using SchoolOS.Infrastructure;
+using SchoolOS.Infrastructure.Identity;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,16 +22,46 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 
+// Rate limiting: named policy "auth", partitioned per client IP, limits configurable.
+var authPermitLimit = builder.Configuration.GetValue("RateLimiting:Auth:PermitLimit", 10);
+var authWindowSeconds = builder.Configuration.GetValue("RateLimiting:Auth:WindowSeconds", 60);
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.AddFixedWindowLimiter("auth", limiter =>
-    {
-        limiter.PermitLimit = 10;
-        limiter.Window = TimeSpan.FromMinutes(1);
-        limiter.QueueLimit = 0;
-    });
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = authPermitLimit,
+                Window = TimeSpan.FromSeconds(authWindowSeconds),
+                QueueLimit = 0
+            }));
 });
+
+// Authentication: JWT bearer (HS256); access tokens are issued by the auth endpoints.
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SchoolOS";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "SchoolOS.Client";
+var jwtSigningKey = builder.Configuration["Jwt:SigningKey"] ?? string.Empty;
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = jwtSigningKey.Length >= 32
+                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSigningKey))
+                : null,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = jwtSigningKey.Length >= 32,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -42,10 +77,24 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
+
+// Dev-only bootstrap (no-op unless Seed:DevAdmin:Enabled; refuses in Production).
+try
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DevAdminSeeder>();
+    await seeder.SeedAsync();
+}
+catch (Exception ex)
+{
+    Log.Warning(ex, "Dev admin seeding failed; continuing without seeding.");
+}
 
 app.Run();
 
