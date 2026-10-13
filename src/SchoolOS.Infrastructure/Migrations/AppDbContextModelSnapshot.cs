@@ -481,6 +481,413 @@ namespace SchoolOS.Infrastructure.Migrations
                     b.ToTable("subjects", "structure");
                 });
 
+            modelBuilder.Entity("SchoolOS.Domain.Students.AdmissionApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<string>("ApplicantFirstNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("applicant_first_name_ar");
+
+                    b.Property<string>("ApplicantFirstNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("applicant_first_name_en");
+
+                    b.Property<string>("ApplicantLastNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("applicant_last_name_ar");
+
+                    b.Property<string>("ApplicantLastNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("applicant_last_name_en");
+
+                    b.Property<Guid?>("ConvertedStudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("converted_student_id");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<string>("DecisionNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("decision_notes");
+
+                    b.Property<Guid>("DesiredGradeLevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("desired_grade_level_id");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("GuardianEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("guardian_email");
+
+                    b.Property<string>("GuardianName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("guardian_name");
+
+                    b.Property<string>("GuardianPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("guardian_phone");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nationality");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reviewed_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_admission_applications");
+
+                    b.HasIndex("AcademicYearId")
+                        .HasDatabaseName("ix_admission_applications_academic_year_id");
+
+                    b.HasIndex("DesiredGradeLevelId")
+                        .HasDatabaseName("ix_admission_applications_desired_grade_level_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_admission_applications_status");
+
+                    b.ToTable("admission_applications", "students", t =>
+                        {
+                            t.HasCheckConstraint("ck_admission_applications_status", "status IN ('Submitted', 'UnderReview', 'Approved', 'Rejected', 'Enrolled')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.Enrollment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<Guid>("ClassSectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_section_id");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<Guid>("GradeLevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grade_level_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_enrollments");
+
+                    b.HasIndex("AcademicYearId")
+                        .HasDatabaseName("ix_enrollments_academic_year_id");
+
+                    b.HasIndex("ClassSectionId")
+                        .HasDatabaseName("ix_enrollments_class_section_id");
+
+                    b.HasIndex("GradeLevelId")
+                        .HasDatabaseName("ix_enrollments_grade_level_id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_enrollments_student_id");
+
+                    b.HasIndex("StudentId", "AcademicYearId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_enrollments_open")
+                        .HasFilter("status = 'Enrolled'");
+
+                    b.ToTable("enrollments", "students", t =>
+                        {
+                            t.HasCheckConstraint("ck_enrollments_status", "status IN ('Enrolled', 'Completed', 'Transferred', 'Withdrawn', 'Graduated')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.Guardian", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("AltPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("alt_phone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullNameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("full_name_ar");
+
+                    b.Property<string>("FullNameEn")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("full_name_en");
+
+                    b.Property<string>("Occupation")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("occupation");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_guardians");
+
+                    b.HasIndex("FullNameEn")
+                        .HasDatabaseName("ix_guardians_full_name_en");
+
+                    b.ToTable("guardians", "students");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.Student", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("address");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name_ar");
+
+                    b.Property<string>("FirstNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name_en");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("LastNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name_ar");
+
+                    b.Property<string>("LastNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name_en");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nationality");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PhotoPath")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("photo_path");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StudentNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_number");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_students");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_students_status");
+
+                    b.HasIndex("StudentNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_students_student_number");
+
+                    b.HasIndex("LastNameEn", "FirstNameEn")
+                        .HasDatabaseName("ix_students_last_name_en_first_name_en");
+
+                    b.ToTable("students", "students", t =>
+                        {
+                            t.HasCheckConstraint("ck_students_gender", "gender IN ('Male', 'Female')");
+
+                            t.HasCheckConstraint("ck_students_status", "status IN ('Applicant', 'Active', 'Transferred', 'Withdrawn', 'Graduated')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.StudentGuardian", b =>
+                {
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid>("GuardianId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("guardian_id");
+
+                    b.Property<string>("CustodyNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("custody_notes");
+
+                    b.Property<bool>("IsAuthorizedPickup")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_authorized_pickup");
+
+                    b.Property<bool>("IsEmergencyContact")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_emergency_contact");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_primary");
+
+                    b.Property<string>("Relationship")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("relationship");
+
+                    b.HasKey("StudentId", "GuardianId")
+                        .HasName("pk_student_guardians");
+
+                    b.HasIndex("GuardianId")
+                        .HasDatabaseName("ix_student_guardians_guardian_id");
+
+                    b.ToTable("student_guardians", "students", t =>
+                        {
+                            t.HasCheckConstraint("ck_student_guardians_relationship", "relationship IN ('Father', 'Mother', 'Guardian', 'Other')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.StudentNumberCounter", b =>
+                {
+                    b.Property<int>("Year")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Year"));
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_number");
+
+                    b.HasKey("Year")
+                        .HasName("pk_student_number_counters");
+
+                    b.ToTable("student_number_counters", "students");
+                });
+
             modelBuilder.Entity("SchoolOS.Infrastructure.Identity.AppRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1221,6 +1628,71 @@ namespace SchoolOS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_class_sections_grade_levels_grade_level_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.AdmissionApplication", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Structure.AcademicYear", null)
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_admission_applications_academic_years_academic_year_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.GradeLevel", null)
+                        .WithMany()
+                        .HasForeignKey("DesiredGradeLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_admission_applications_grade_levels_desired_grade_level_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.Enrollment", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Structure.AcademicYear", null)
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_enrollments_academic_years_academic_year_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.ClassSection", null)
+                        .WithMany()
+                        .HasForeignKey("ClassSectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_enrollments_class_sections_class_section_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.GradeLevel", null)
+                        .WithMany()
+                        .HasForeignKey("GradeLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_enrollments_grade_levels_grade_level_id");
+
+                    b.HasOne("SchoolOS.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_enrollments_students_student_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.StudentGuardian", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Students.Guardian", null)
+                        .WithMany()
+                        .HasForeignKey("GuardianId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_student_guardians_guardians_guardian_id");
+
+                    b.HasOne("SchoolOS.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_student_guardians_students_student_id");
                 });
 
             modelBuilder.Entity("SchoolOS.Infrastructure.Identity.RefreshToken", b =>

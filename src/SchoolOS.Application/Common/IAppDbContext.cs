@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolOS.Domain.Structure;
+using SchoolOS.Domain.Students;
 
 namespace SchoolOS.Application.Common;
 
@@ -23,6 +24,20 @@ public interface IAppDbContext
     DbSet<Classroom> Classrooms { get; }
 
     DbSet<School> Schools { get; }
+
+    DbSet<Student> Students { get; }
+
+    DbSet<Guardian> Guardians { get; }
+
+    DbSet<StudentGuardian> StudentGuardians { get; }
+
+    DbSet<Enrollment> Enrollments { get; }
+
+    DbSet<AdmissionApplication> AdmissionApplications { get; }
+
+    DbSet<StudentNumberCounter> StudentNumberCounters { get; }
+
+    Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

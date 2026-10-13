@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SchoolOS.Application.Common;
 using SchoolOS.Domain.Structure;
+using SchoolOS.Domain.Students;
 using SchoolOS.Infrastructure.Identity;
 
 namespace SchoolOS.Infrastructure.Persistence;
@@ -35,6 +36,38 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Subject> Subjects => Set<Subject>();
 
     public DbSet<Classroom> Classrooms => Set<Classroom>();
+
+    public DbSet<Student> Students => Set<Student>();
+
+    public DbSet<Guardian> Guardians => Set<Guardian>();
+
+    public DbSet<StudentGuardian> StudentGuardians => Set<StudentGuardian>();
+
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
+    public DbSet<AdmissionApplication> AdmissionApplications => Set<AdmissionApplication>();
+
+    public DbSet<StudentNumberCounter> StudentNumberCounters => Set<StudentNumberCounter>();
+
+    public async Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default)
+    {
+        // Lock the counter row so concurrent enrollments cannot allocate the same number.
+        var counter = await StudentNumberCounters
+            .FromSqlInterpolated($"SELECT * FROM students.student_number_counters WHERE year = {year} FOR UPDATE")
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (counter is null)
+        {
+            counter = new StudentNumberCounter { Year = year, LastNumber = 1 };
+            StudentNumberCounters.Add(counter);
+        }
+        else
+        {
+            counter.LastNumber += 1;
+        }
+
+        return counter.LastNumber;
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

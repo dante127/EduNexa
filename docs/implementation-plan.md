@@ -170,9 +170,20 @@ See `requirements.md` §7 for the full register. Top execution risks: grading-mo
 | 2026-10-12 | M1 — Foundation | Done | scaffold + JWT auth + Next.js login flow (EN/AR, RTL); CI green (`257e483`) |
 | 2026-10-12 | M2 — School structure (backend) | Done | 7 tables, MediatR + validation pipeline, permission policies, 25/25 tests; CI green (`1ff24d6`) |
 | 2026-10-13 | M2 — School structure (admin UI) | Done | `/[locale]/structure` screens (years/terms/grades/subjects/classrooms/sections/settings), full EN/AR; CI green (`db873d3`) |
+| 2026-10-13 | M3 — Students & enrollment (backend, part A) | Done | `students` schema (6 tables), admission workflow + enrollment lifecycle, `YYYY-####` allocation via locked counter, 32/32 tests |
 
 ### Sequencing note (M2 ↔ M4)
 
 Teacher assignments and the timetable editor move to the M4 (staff) block, since both depend on
 `StaffMember`. M2 completes with academic years, terms, grade levels, sections, subjects, and
 classrooms (backend + admin UI).
+
+### Split note (M3 part A → part B)
+
+M3 part A (this round) delivers the students backend: domain model + EF configurations
+(`students` schema), admission applications (submit, review, approve/reject, enroll),
+enrollment lifecycle (change section, transfer, withdraw, graduate), guardian management
+with single-primary enforcement, student search/paging, and `YYYY-####` number allocation
+backed by a row-locked counter. Part B (student documents upload + storage and the
+students/admissions admin UI) follows in a later round; audit-log writes are deferred to
+the cross-cutting pass in M9.
