@@ -160,3 +160,19 @@ npm run build --prefix src/web
 ## 8. Risk register (execution view)
 
 See `requirements.md` §7 for the full register. Top execution risks: grading-model drift (Q1), timetable constraint subtleties (mitigated by DB exclusion tests), finance invariants (dedicated test suite), RTL polish (started in M1, not deferred), scope growth (milestone gates).
+
+
+## 9. Progress log
+
+| Date | Milestone | Status | Evidence |
+|---|---|---|---|
+| 2026-10-12 | Phase 1 — planning pack | Done | six docs under `docs/` (commits `b0d5661` …) |
+| 2026-10-12 | M1 — Foundation | Done | scaffold + JWT auth + Next.js login flow (EN/AR, RTL); CI green (`257e483`) |
+| 2026-10-12 | M2 — School structure (backend) | Done | 7 tables, MediatR + validation pipeline, permission policies, 25/25 tests; CI green (`1ff24d6`) |
+| 2026-10-13 | M2 — School structure (admin UI) | Done | `/[locale]/structure` screens (years/terms/grades/subjects/classrooms/sections/settings), full EN/AR; CI green (`db873d3`) |
+
+### Sequencing note (M2 ↔ M4)
+
+Teacher assignments and the timetable editor move to the M4 (staff) block, since both depend on
+`StaffMember`. M2 completes with academic years, terms, grade levels, sections, subjects, and
+classrooms (backend + admin UI).
