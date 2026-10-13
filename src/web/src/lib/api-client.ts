@@ -69,6 +69,76 @@ export async function apiFetch(
   return response;
 }
 
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    message: string,
+    public readonly errors?: Record<string, string[]>
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+/**
+ * Fetch + parse JSON with ProblemDetails-aware errors (`code`, `errors`).
+ * Automatically attaches the access token and retries once after a silent refresh.
+ */
+export async function apiJson<T>(input: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (init.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const response = await apiFetch(input, { ...init, headers });
+
+  if (!response.ok) {
+    type ProblemPayload = {
+      code?: string;
+      title?: string;
+      errors?: Record<string, string[]>;
+    };
+
+    let problem: ProblemPayload | null = null;
+
+    try {
+      problem = (await response.json()) as ProblemPayload;
+    } catch {
+      problem = null;
+    }
+
+    throw new ApiError(
+      response.status,
+      problem?.code ?? "unknown",
+      problem?.title ?? `Request failed with status ${response.status}.`,
+      problem?.errors
+    );
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
+}
+
+type Translator = ((key: string) => string) & { has?: (key: string) => boolean };
+
+/** Maps an ApiError to a localized message when a translation for its code exists. */
+export function formatApiError(t: Translator, error: unknown): string {
+  if (error instanceof ApiError) {
+    const key = `errors.${error.code}`;
+    if (t.has?.(key)) {
+      return t(key);
+    }
+
+    return error.status >= 500 ? t("errors.serverError") : t("errors.generic");
+  }
+
+  return t("errors.generic");
+}
+
 export type LoginResult = { ok: true } | { ok: false; error: string };
 
 export async function login(emailOrUserName: string, password: string): Promise<LoginResult> {
