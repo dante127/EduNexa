@@ -37,6 +37,8 @@ public interface IAppDbContext
 
     DbSet<StudentNumberCounter> StudentNumberCounters { get; }
 
+    DbSet<StudentDocument> StudentDocuments { get; }
+
     Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

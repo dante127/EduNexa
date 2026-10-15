@@ -171,6 +171,7 @@ See `requirements.md` §7 for the full register. Top execution risks: grading-mo
 | 2026-10-12 | M2 — School structure (backend) | Done | 7 tables, MediatR + validation pipeline, permission policies, 25/25 tests; CI green (`1ff24d6`) |
 | 2026-10-13 | M2 — School structure (admin UI) | Done | `/[locale]/structure` screens (years/terms/grades/subjects/classrooms/sections/settings), full EN/AR; CI green (`db873d3`) |
 | 2026-10-13 | M3 — Students & enrollment (backend, part A) | Done | `students` schema (6 tables), admission workflow + enrollment lifecycle, `YYYY-####` allocation via locked counter, 32/32 tests |
+| 2026-10-15 | M3 — Documents backend (part B-1) | Done | `student_documents` + local file storage, multipart upload (type/size/path validation), verification workflow, list/download/soft-delete; 40/40 tests |
 
 ### Sequencing note (M2 ↔ M4)
 
@@ -184,6 +185,11 @@ M3 part A (this round) delivers the students backend: domain model + EF configur
 (`students` schema), admission applications (submit, review, approve/reject, enroll),
 enrollment lifecycle (change section, transfer, withdraw, graduate), guardian management
 with single-primary enforcement, student search/paging, and `YYYY-####` number allocation
-backed by a row-locked counter. Part B (student documents upload + storage and the
-students/admissions admin UI) follows in a later round; audit-log writes are deferred to
-the cross-cutting pass in M9.
+backed by a row-locked counter.
+
+M3 part B-1 (documents backend) delivers `StudentDocument` (soft delete), the local file
+storage abstraction (`IFileStorage` / `LocalFileStorage`, `Storage` config section), multipart
+upload validated by type + size with server-generated storage paths, the verification
+workflow (Pending to Verified/Rejected), and list/download/soft-delete endpoints (40/40 tests).
+Part B-2 (students and admissions admin UI, including the documents tab) follows in a later
+round; audit-log writes and the orphan-file sweep remain deferred to the cross-cutting pass in M9.

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SchoolOS.Api.ErrorHandling;
@@ -17,6 +18,11 @@ builder.Services.AddSerilog(configuration => configuration
     .WriteTo.Console());
 
 builder.Services.AddControllers();
+
+// Multipart upload limits: maximum document size plus a 1 MB cushion (Storage:MaxFileSizeBytes).
+var maxDocumentBytes = builder.Configuration.GetValue("Storage:MaxFileSizeBytes", 10L * 1024 * 1024);
+builder.Services.Configure<FormOptions>(options =>
+    options.MultipartBodyLengthLimit = maxDocumentBytes + (1024 * 1024));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 

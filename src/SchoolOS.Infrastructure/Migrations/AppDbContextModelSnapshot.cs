@@ -824,6 +824,90 @@ namespace SchoolOS.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SchoolOS.Domain.Students.StudentDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("mime_type");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("storage_path");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploaded_by_user_id");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("verification_status");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_student_documents");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_student_documents_student_id");
+
+                    b.ToTable("student_documents", "students", t =>
+                        {
+                            t.HasCheckConstraint("ck_student_documents_type", "document_type IN ('BirthCertificate', 'NationalId', 'Passport', 'PreviousSchoolRecord', 'MedicalRecord', 'Photo', 'Other')");
+
+                            t.HasCheckConstraint("ck_student_documents_verification_status", "verification_status IN ('Pending', 'Verified', 'Rejected')");
+                        });
+                });
+
             modelBuilder.Entity("SchoolOS.Domain.Students.StudentGuardian", b =>
                 {
                     b.Property<Guid>("StudentId")
@@ -1676,6 +1760,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_enrollments_students_student_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Students.StudentDocument", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_student_documents_students_student_id");
                 });
 
             modelBuilder.Entity("SchoolOS.Domain.Students.StudentGuardian", b =>

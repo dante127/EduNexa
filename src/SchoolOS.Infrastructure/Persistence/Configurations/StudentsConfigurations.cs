@@ -167,3 +167,34 @@ public sealed class StudentNumberCounterConfiguration : IEntityTypeConfiguration
         builder.Property(counter => counter.LastNumber);
     }
 }
+
+public sealed class StudentDocumentConfiguration : IEntityTypeConfiguration<StudentDocument>
+{
+    public void Configure(EntityTypeBuilder<StudentDocument> builder)
+    {
+        builder.ToTable("student_documents", AppModuleSchemas.Students, table =>
+        {
+            table.HasCheckConstraint(
+                "ck_student_documents_type",
+                "document_type IN ('BirthCertificate', 'NationalId', 'Passport', 'PreviousSchoolRecord', 'MedicalRecord', 'Photo', 'Other')");
+            table.HasCheckConstraint(
+                "ck_student_documents_verification_status",
+                "verification_status IN ('Pending', 'Verified', 'Rejected')");
+        });
+
+        builder.HasKey(document => document.Id);
+        builder.Property(document => document.DocumentType).HasConversion<string>().HasMaxLength(30).IsRequired();
+        builder.Property(document => document.FileName).HasMaxLength(255).IsRequired();
+        builder.Property(document => document.MimeType).HasMaxLength(100).IsRequired();
+        builder.Property(document => document.StoragePath).HasMaxLength(400).IsRequired();
+        builder.Property(document => document.VerificationStatus).HasConversion<string>().HasMaxLength(20).IsRequired();
+        builder.Property(document => document.Notes).HasMaxLength(500);
+
+        builder.HasIndex(document => document.StudentId);
+
+        builder.HasOne<Student>()
+            .WithMany()
+            .HasForeignKey(document => document.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}

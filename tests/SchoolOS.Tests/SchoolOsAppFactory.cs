@@ -18,6 +18,8 @@ public sealed class SchoolOsAppFactory : WebApplicationFactory<Program>, IAsyncL
 {
     internal const string TestSigningKey = "integration-test-signing-key-0123456789abcdef";
 
+    private string? _storageRoot;
+
     private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:17")
         .WithDatabase("schoolos_tests")
         .WithUsername("schoolos")
@@ -33,6 +35,8 @@ public sealed class SchoolOsAppFactory : WebApplicationFactory<Program>, IAsyncL
         Environment.SetEnvironmentVariable("Jwt__SigningKey", TestSigningKey);
         Environment.SetEnvironmentVariable("RateLimiting__Auth__PermitLimit", "10000");
         Environment.SetEnvironmentVariable("Seed__DevAdmin__Enabled", "false");
+        _storageRoot = Path.Combine(Path.GetTempPath(), $"schoolos-tests-storage-{Guid.NewGuid():N}$");
+        Environment.SetEnvironmentVariable("Storage__Root", _storageRoot);
 
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -48,6 +52,19 @@ public sealed class SchoolOsAppFactory : WebApplicationFactory<Program>, IAsyncL
         Environment.SetEnvironmentVariable("Jwt__SigningKey", null);
         Environment.SetEnvironmentVariable("RateLimiting__Auth__PermitLimit", null);
         Environment.SetEnvironmentVariable("Seed__DevAdmin__Enabled", null);
+        Environment.SetEnvironmentVariable("Storage__Root", null);
+
+        if (_storageRoot is not null && Directory.Exists(_storageRoot))
+        {
+            try
+            {
+                Directory.Delete(_storageRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort cleanup; leftover temp files are harmless.
+            }
+        }
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

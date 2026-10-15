@@ -49,6 +49,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<StudentNumberCounter> StudentNumberCounters => Set<StudentNumberCounter>();
 
+    public DbSet<StudentDocument> StudentDocuments => Set<StudentDocument>();
+
     public async Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default)
     {
         // Lock the counter row so concurrent enrollments cannot allocate the same number.

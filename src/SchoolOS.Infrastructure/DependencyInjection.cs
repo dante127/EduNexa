@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SchoolOS.Application.Common;
 using SchoolOS.Infrastructure.Identity;
 using SchoolOS.Infrastructure.Persistence;
+using SchoolOS.Infrastructure.Storage;
 
 namespace SchoolOS.Infrastructure;
 
@@ -24,6 +25,22 @@ public static class DependencyInjection
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+
+        services.Configure<StorageOptions>(options =>
+        {
+            var section = configuration.GetSection(StorageOptions.SectionName);
+            if (!string.IsNullOrWhiteSpace(section["Root"]))
+            {
+                options.Root = section["Root"]!;
+            }
+
+            if (long.TryParse(section["MaxFileSizeBytes"], out var maxBytes) && maxBytes > 0)
+            {
+                options.MaxFileSizeBytes = maxBytes;
+            }
+        });
+
+        services.AddSingleton<IFileStorage, LocalFileStorage>();
 
         services.Configure<JwtOptions>(options =>
         {
