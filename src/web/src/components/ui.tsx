@@ -93,7 +93,8 @@ export function StatusBadge({ tone, label }: { tone: StatusTone; label: string }
     planned: "bg-amber-100 text-amber-800",
     active: "bg-emerald-100 text-emerald-800",
     closed: "bg-slate-200 text-slate-700",
-    muted: "bg-slate-100 text-slate-500"
+    muted: "bg-slate-100 text-slate-500",
+    danger: "bg-red-100 text-red-700"
   };
 
   return (
@@ -103,7 +104,7 @@ export function StatusBadge({ tone, label }: { tone: StatusTone; label: string }
   );
 }
 
-export type StatusTone = "planned" | "active" | "closed" | "muted";
+export type StatusTone = "planned" | "active" | "closed" | "muted" | "danger";
 
 export function statusTone(status: string): StatusTone {
   if (status === "Active") return "active";

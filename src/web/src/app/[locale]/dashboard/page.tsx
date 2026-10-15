@@ -8,6 +8,7 @@ import { apiFetch, logout, type MeResponse } from "@/lib/api-client";
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tStructure = useTranslations("structure");
+  const tStudents = useTranslations("students");
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "ready">("loading");
   const [me, setMe] = useState<MeResponse | null>(null);
@@ -117,6 +118,26 @@ export default function DashboardPage() {
             className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-400"
           >
             {tStructure("nav.settings")}
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          {t("studentsSection")}
+        </h2>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <Link
+            href="/students"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-400"
+          >
+            {tStudents("nav.students")}
+          </Link>
+          <Link
+            href="/admissions"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-400"
+          >
+            {tStudents("nav.admissions")}
           </Link>
         </div>
       </section>
