@@ -153,6 +153,161 @@ namespace SchoolOS.Infrastructure.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
+            modelBuilder.Entity("SchoolOS.Domain.Staff.StaffMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContractType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("contract_type");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("EmergencyContact")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("emergency_contact");
+
+                    b.Property<string>("EmployeeNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("employee_number");
+
+                    b.Property<string>("FirstNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name_ar");
+
+                    b.Property<string>("FirstNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name_en");
+
+                    b.Property<DateOnly>("HireDate")
+                        .HasColumnType("date")
+                        .HasColumnName("hire_date");
+
+                    b.Property<string>("LastNameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name_ar");
+
+                    b.Property<string>("LastNameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name_en");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("position");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_members");
+
+                    b.HasIndex("Department")
+                        .HasDatabaseName("ix_staff_members_department");
+
+                    b.HasIndex("EmployeeNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_members_employee_number");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_staff_members_status");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_members_user_id");
+
+                    b.ToTable("staff_members", "staff", t =>
+                        {
+                            t.HasCheckConstraint("ck_staff_members_contract_type", "contract_type IN ('FullTime', 'PartTime', 'Contract')");
+
+                            t.HasCheckConstraint("ck_staff_members_status", "status IN ('Active', 'OnLeave', 'Terminated')");
+                        });
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Staff.TeacherAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<Guid>("ClassSectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_section_id");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subject_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_teacher_assignments");
+
+                    b.HasIndex("ClassSectionId")
+                        .HasDatabaseName("ix_teacher_assignments_class_section_id");
+
+                    b.HasIndex("StaffMemberId")
+                        .HasDatabaseName("ix_teacher_assignments_staff_member_id");
+
+                    b.HasIndex("SubjectId")
+                        .HasDatabaseName("ix_teacher_assignments_subject_id");
+
+                    b.HasIndex("AcademicYearId", "StaffMemberId", "SubjectId", "ClassSectionId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_teacher_assignments");
+
+                    b.ToTable("teacher_assignments", "staff");
+                });
+
             modelBuilder.Entity("SchoolOS.Domain.Structure.AcademicTerm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1228,6 +1383,18 @@ namespace SchoolOS.Infrastructure.Migrations
                         },
                         new
                         {
+                            Id = new Guid("71be85a8-4979-c9cb-8861-2c31230ab163"),
+                            Code = "staff.view",
+                            Module = "Staff"
+                        },
+                        new
+                        {
+                            Id = new Guid("1a2eb8a4-6668-a9e6-4fb7-8ff9ed4eb689"),
+                            Code = "staff.manage",
+                            Module = "Staff"
+                        },
+                        new
+                        {
                             Id = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2"),
                             Code = "attendance.take",
                             Module = "Attendance"
@@ -1401,6 +1568,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
+                            PermissionId = new Guid("71be85a8-4979-c9cb-8861-2c31230ab163")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
+                            PermissionId = new Guid("1a2eb8a4-6668-a9e6-4fb7-8ff9ed4eb689")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("3249fe97-e57b-5a9a-7bc6-d2023e8b864b"),
                             PermissionId = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2")
                         },
                         new
@@ -1481,6 +1658,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
+                            PermissionId = new Guid("71be85a8-4979-c9cb-8861-2c31230ab163")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
+                            PermissionId = new Guid("1a2eb8a4-6668-a9e6-4fb7-8ff9ed4eb689")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("4a74b031-8f5a-4030-1226-f2faeae43969"),
                             PermissionId = new Guid("1edbcc39-4135-d300-c46b-3b9151d3add2")
                         },
                         new
@@ -1542,6 +1729,16 @@ namespace SchoolOS.Infrastructure.Migrations
                         {
                             RoleId = new Guid("849289eb-e846-1afd-e808-6d17a8249154"),
                             PermissionId = new Guid("86a31d72-1a02-f410-550f-ace9095de30b")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("849289eb-e846-1afd-e808-6d17a8249154"),
+                            PermissionId = new Guid("71be85a8-4979-c9cb-8861-2c31230ab163")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("849289eb-e846-1afd-e808-6d17a8249154"),
+                            PermissionId = new Guid("1a2eb8a4-6668-a9e6-4fb7-8ff9ed4eb689")
                         },
                         new
                         {
@@ -1685,6 +1882,46 @@ namespace SchoolOS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Staff.StaffMember", b =>
+                {
+                    b.HasOne("SchoolOS.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_staff_members_users_user_id");
+                });
+
+            modelBuilder.Entity("SchoolOS.Domain.Staff.TeacherAssignment", b =>
+                {
+                    b.HasOne("SchoolOS.Domain.Structure.AcademicYear", null)
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_teacher_assignments_academic_years_academic_year_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.ClassSection", null)
+                        .WithMany()
+                        .HasForeignKey("ClassSectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_teacher_assignments_class_sections_class_section_id");
+
+                    b.HasOne("SchoolOS.Domain.Staff.StaffMember", null)
+                        .WithMany()
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_teacher_assignments_staff_members_staff_member_id");
+
+                    b.HasOne("SchoolOS.Domain.Structure.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_teacher_assignments_subjects_subject_id");
                 });
 
             modelBuilder.Entity("SchoolOS.Domain.Structure.AcademicTerm", b =>

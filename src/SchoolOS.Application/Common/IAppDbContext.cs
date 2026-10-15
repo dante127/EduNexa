@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SchoolOS.Domain.Staff;
 using SchoolOS.Domain.Structure;
 using SchoolOS.Domain.Students;
 
@@ -39,7 +40,15 @@ public interface IAppDbContext
 
     DbSet<StudentDocument> StudentDocuments { get; }
 
+    DbSet<StaffMember> StaffMembers { get; }
+
+    DbSet<TeacherAssignment> TeacherAssignments { get; }
+
     Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default);
+
+    Task<long> NextEmployeeNumberAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> UserExistsAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

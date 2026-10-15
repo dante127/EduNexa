@@ -16,6 +16,8 @@ public static class SchoolOsPermissions
         new("students.manage", "Students"),
         new("structure.view", "Structure"),
         new("structure.manage", "Structure"),
+        new("staff.view", "Staff"),
+        new("staff.manage", "Staff"),
         new("attendance.take", "Attendance"),
         new("attendance.correct", "Attendance"),
         new("grades.enter", "Academics"),
@@ -42,6 +44,8 @@ public static class SchoolOsPermissions
             [SchoolOsRoles.Principal] =
             [
                 "students.view",
+                "staff.view",
+                "staff.manage",
                 "structure.view",
                 "grades.approve",
                 "grades.publish",

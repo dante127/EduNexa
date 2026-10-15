@@ -173,6 +173,7 @@ See `requirements.md` §7 for the full register. Top execution risks: grading-mo
 | 2026-10-13 | M3 — Students & enrollment (backend, part A) | Done | `students` schema (6 tables), admission workflow + enrollment lifecycle, `YYYY-####` allocation via locked counter, 32/32 tests |
 | 2026-10-15 | M3 — Documents backend (part B-1) | Done | `student_documents` + local file storage, multipart upload (type/size/path validation), verification workflow, list/download/soft-delete; 40/40 tests |
 | 2026-10-15 | M3 — Students & admissions admin UI (part B-2) | Done | `/[locale]/students` + `/[locale]/admissions` screens (full workflow), EN/AR; npm build green, shells + proxied API smoke verified |
+| 2026-10-15 | M4 — Staff core backend (part A) | Done | `staff` schema (2 tables), EMP-#### allocation via sequence, user linking, teacher assignments, staff.view/manage perms; 50/50 tests |
 
 ### Sequencing note (M2 ↔ M4)
 
@@ -197,3 +198,13 @@ filter, paging), student detail (profile editing, guardian management with singl
 enforcement, enrollment lifecycle actions, document upload/verify/download), and the admissions
 workflow UI (create, review, approve/reject, enroll). Audit-log writes and the orphan-file sweep
 remain deferred to the cross-cutting pass in M9.
+
+### Split note (M4 part A → part B)
+
+M4 part A (this round) delivers the staff backend core: ``staff_members`` (employment fields,
+status-based lifecycle, unique employee numbers allocated from ``staff.employee_number_seq``),
+user linking, and ``teacher_assignments`` (teaching eligibility driving workload and timetable),
+plus the ``staff.view`` / ``staff.manage`` permissions (Principal included). Part B adds
+timetable slots with DB-enforced conflict prevention (btree_gist exclusion constraints) and the
+workload view; the staff/assignment/timetable admin UI follows after that. Staff attendance
+stays config-gated (Q4).

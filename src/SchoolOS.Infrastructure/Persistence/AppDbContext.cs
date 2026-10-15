@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SchoolOS.Application.Common;
+using SchoolOS.Domain.Staff;
 using SchoolOS.Domain.Structure;
 using SchoolOS.Domain.Students;
 using SchoolOS.Infrastructure.Identity;
@@ -51,6 +52,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<StudentDocument> StudentDocuments => Set<StudentDocument>();
 
+    public DbSet<StaffMember> StaffMembers => Set<StaffMember>();
+
+    public DbSet<TeacherAssignment> TeacherAssignments => Set<TeacherAssignment>();
+
     public async Task<int> NextStudentNumberAsync(int year, CancellationToken cancellationToken = default)
     {
         // Lock the counter row so concurrent enrollments cannot allocate the same number.
@@ -70,6 +75,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
         return counter.LastNumber;
     }
+
+    public async Task<long> NextEmployeeNumberAsync(CancellationToken cancellationToken = default)
+    {
+        // Sequence-backed allocation (staff.employee_number_seq); gaps are acceptable
+        // (docs/database-design.md).
+        return await Database
+            .SqlQueryRaw<long>("SELECT nextval('staff.employee_number_seq') AS \"Value\"")
+            .SingleAsync(cancellationToken);
+    }
+
+    public Task<bool> UserExistsAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        Users.AnyAsync(user => user.Id == userId, cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
